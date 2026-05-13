@@ -32,7 +32,7 @@ let staticMarketCache;
 
 async function loadStaticMarketCache() {
   if (!staticMarketCache) {
-    const response = await fetch(new URL("../../data/market-cache.json", import.meta.url));
+    const response = await fetch(new URL("../data/market-cache.json", import.meta.url));
     if (!response.ok) throw new Error(`Static market cache unavailable: ${response.status}`);
     staticMarketCache = await response.json();
   }
