@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "check": "node --check server.js"
+    "check": "find public server -name '*.js' -print | sort | xargs -n1 node --check && node --check server.js"
   },
   "engines": {
     "node": ">=20"
