@@ -106,7 +106,7 @@ TxRadar keeps the console reviewable by falling back to `data/market-cache.json`
 ├── data/market-cache.json   # curated market cache
 ├── public/index.html        # app shell
 ├── public/app.js            # client entrypoint and event wiring
-├── public/js/               # client state, rendering, actions, i18n, formatting
+├── public/modules/          # client state, rendering, actions, i18n, formatting
 ├── public/styles.css        # product UI and radar animation
 ├── server.js                # HTTP entrypoint
 ├── server/                  # API handlers, OKX CLI adapter, cache, quote logic

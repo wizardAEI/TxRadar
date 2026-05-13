@@ -1,7 +1,7 @@
-import { loadQuote, loadSignals, selectSignal } from "./js/actions.js";
-import { els } from "./js/dom.js";
-import { applyLanguage, setRenderHandlers, setView } from "./js/renderers.js";
-import { state } from "./js/state.js";
+import { loadQuote, loadSignals, selectSignal } from "./modules/actions.js";
+import { els } from "./modules/dom.js";
+import { applyLanguage, setRenderHandlers, setView } from "./modules/renderers.js";
+import { state } from "./modules/state.js";
 
 setRenderHandlers({ onSelectSignal: selectSignal });
 
