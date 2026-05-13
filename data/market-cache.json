@@ -1,0 +1,325 @@
+{
+  "signals": {
+    "source": "signal-cache",
+    "requestTime": 1778650459000,
+    "items": [
+      {
+        "id": "nova",
+        "symbol": "NOVA",
+        "name": "Nova Compute",
+        "chain": "solana",
+        "address": "nova111111111111111111111111111111111111111",
+        "walletType": "Smart Money",
+        "amountUsd": 184200,
+        "triggerWallets": 19,
+        "soldRatioPercent": 8.4,
+        "liquidity": 2450000,
+        "marketCap": 48200000,
+        "change24h": 31.8,
+        "riskLevel": "LOW",
+        "score": 92,
+        "thesis": "Coordinated buys from profitable wallets while sold ratio remains low."
+      },
+      {
+        "id": "mesh",
+        "symbol": "MESH",
+        "name": "Mesh Router",
+        "chain": "base",
+        "address": "0xmesh000000000000000000000000000000000001",
+        "walletType": "Whale",
+        "amountUsd": 96200,
+        "triggerWallets": 7,
+        "soldRatioPercent": 24.5,
+        "liquidity": 1120000,
+        "marketCap": 17900000,
+        "change24h": 14.2,
+        "riskLevel": "MEDIUM",
+        "score": 74,
+        "thesis": "Whale accumulation is real, but holder concentration needs attention."
+      },
+      {
+        "id": "glitch",
+        "symbol": "GLITCH",
+        "name": "Glitch Runner",
+        "chain": "bsc",
+        "address": "0xglitch0000000000000000000000000000000001",
+        "walletType": "KOL",
+        "amountUsd": 42800,
+        "triggerWallets": 5,
+        "soldRatioPercent": 3.2,
+        "liquidity": 7800,
+        "marketCap": 910000,
+        "change24h": 88.1,
+        "riskLevel": "CRITICAL",
+        "score": 38,
+        "thesis": "Signal is loud, but liquidity and token-scan verdict block buy-side action."
+      },
+      {
+        "id": "atlas",
+        "symbol": "ATLAS",
+        "name": "Atlas Agents",
+        "chain": "ethereum",
+        "address": "0xatlas00000000000000000000000000000000001",
+        "walletType": "Smart Money",
+        "amountUsd": 231000,
+        "triggerWallets": 12,
+        "soldRatioPercent": 18.9,
+        "liquidity": 7600000,
+        "marketCap": 128000000,
+        "change24h": 6.7,
+        "riskLevel": "LOW",
+        "score": 86,
+        "thesis": "High quality liquidity and repeat buyers; less explosive but more institution-like."
+      }
+    ]
+  },
+  "dossiers": {
+    "nova": {
+      "id": "nova",
+      "symbol": "NOVA",
+      "name": "Nova Compute",
+      "chain": "solana",
+      "address": "nova111111111111111111111111111111111111111",
+      "source": "signal-cache",
+      "updatedAt": "2026-05-13T05:18:00.000Z",
+      "market": {
+        "price": 0.0842,
+        "marketCap": 48200000,
+        "liquidity": 2450000,
+        "volume24h": 8200000,
+        "holders": 18420,
+        "change24h": 31.8
+      },
+      "risk": {
+        "riskLevel": "LOW",
+        "action": "allow",
+        "scanState": "completed",
+        "message": "No blocking token labels detected. Continue with protected trade preview.",
+        "labels": ["verified liquidity", "distributed holders", "low sell tax"]
+      },
+      "holders": [
+        { "label": "Top 10", "value": 18.4 },
+        { "label": "Smart Money", "value": 9.2 },
+        { "label": "Fresh Wallets", "value": 11.8 }
+      ],
+      "traders": [
+        { "wallet": "9n7d...Q4x2", "pnl": 124000, "winRate": 71, "volume": 920000 },
+        { "wallet": "F2p9...Lk88", "pnl": 86000, "winRate": 64, "volume": 410000 },
+        { "wallet": "31Aa...Pz1m", "pnl": 62000, "winRate": 69, "volume": 303000 }
+      ],
+      "trades": [
+        { "side": "Buy", "wallet": "9n7d...Q4x2", "amount": 42000, "time": "2m ago" },
+        { "side": "Buy", "wallet": "F2p9...Lk88", "amount": 19500, "time": "7m ago" },
+        { "side": "Sell", "wallet": "7zz1...A0p3", "amount": 8200, "time": "11m ago" }
+      ],
+      "ai": [
+        "Signal quality is strong because trigger wallet count and still-holding ratio agree.",
+        "Liquidity is enough for a small exploratory quote, but route and price impact still matter.",
+        "This is a research assistant verdict, not an automated execution instruction."
+      ],
+      "audit": [
+        "OKX signal intelligence loaded",
+        "Token dossier assembled from price, holders, top traders and trades",
+        "Security token-scan completed with LOW risk",
+        "Action panel unlocked in protected preview mode"
+      ]
+    },
+    "mesh": {
+      "id": "mesh",
+      "symbol": "MESH",
+      "name": "Mesh Router",
+      "chain": "base",
+      "address": "0xmesh000000000000000000000000000000000001",
+      "source": "signal-cache",
+      "updatedAt": "2026-05-13T05:18:00.000Z",
+      "market": {
+        "price": 0.031,
+        "marketCap": 17900000,
+        "liquidity": 1120000,
+        "volume24h": 2400000,
+        "holders": 6910,
+        "change24h": 14.2
+      },
+      "risk": {
+        "riskLevel": "MEDIUM",
+        "action": "warn",
+        "scanState": "completed",
+        "message": "Quote is available, but holder concentration and whale dominance require caution.",
+        "labels": ["holder concentration", "recent contract owner activity"]
+      },
+      "holders": [
+        { "label": "Top 10", "value": 31.8 },
+        { "label": "Smart Money", "value": 6.4 },
+        { "label": "Fresh Wallets", "value": 21.1 }
+      ],
+      "traders": [
+        { "wallet": "0xf2...88bb", "pnl": 54000, "winRate": 62, "volume": 260000 },
+        { "wallet": "0x91...0c2a", "pnl": 42000, "winRate": 58, "volume": 191000 }
+      ],
+      "trades": [
+        { "side": "Buy", "wallet": "0xf2...88bb", "amount": 18000, "time": "4m ago" },
+        { "side": "Buy", "wallet": "0x91...0c2a", "amount": 13200, "time": "12m ago" }
+      ],
+      "ai": [
+        "The signal is tradable only as a watchlist candidate until concentration improves.",
+        "A quote can be generated, but UX should make the warning impossible to miss."
+      ],
+      "audit": [
+        "OKX signal intelligence loaded",
+        "Risk Gate returned MEDIUM",
+        "Action panel remains enabled with warning state"
+      ]
+    },
+    "glitch": {
+      "id": "glitch",
+      "symbol": "GLITCH",
+      "name": "Glitch Runner",
+      "chain": "bsc",
+      "address": "0xglitch0000000000000000000000000000000001",
+      "source": "signal-cache",
+      "updatedAt": "2026-05-13T05:18:00.000Z",
+      "market": {
+        "price": 0.00091,
+        "marketCap": 910000,
+        "liquidity": 7800,
+        "volume24h": 1200000,
+        "holders": 820,
+        "change24h": 88.1
+      },
+      "risk": {
+        "riskLevel": "CRITICAL",
+        "action": "block",
+        "scanState": "completed",
+        "message": "Buy action blocked. Liquidity is below safety threshold and token-scan detected critical labels.",
+        "labels": ["low liquidity", "suspicious ownership", "sell restriction risk"]
+      },
+      "holders": [
+        { "label": "Top 10", "value": 72.4 },
+        { "label": "Smart Money", "value": 1.3 },
+        { "label": "Fresh Wallets", "value": 54.1 }
+      ],
+      "traders": [
+        { "wallet": "0x44...120a", "pnl": 21000, "winRate": 39, "volume": 71000 }
+      ],
+      "trades": [
+        { "side": "Buy", "wallet": "0x44...120a", "amount": 7200, "time": "1m ago" },
+        { "side": "Buy", "wallet": "0x88...beef", "amount": 5100, "time": "3m ago" }
+      ],
+      "ai": [
+        "TxRadar explains the signal while preserving the block on buy-side action.",
+        "A strong social or KOL signal does not override the security verdict."
+      ],
+      "audit": [
+        "OKX signal intelligence loaded",
+        "Security token-scan completed with CRITICAL risk",
+        "Action panel disabled",
+        "User can inspect rationale but cannot create a buy quote"
+      ]
+    },
+    "atlas": {
+      "id": "atlas",
+      "symbol": "ATLAS",
+      "name": "Atlas Agents",
+      "chain": "ethereum",
+      "address": "0xatlas00000000000000000000000000000000001",
+      "source": "signal-cache",
+      "updatedAt": "2026-05-13T05:18:00.000Z",
+      "market": {
+        "price": 1.28,
+        "marketCap": 128000000,
+        "liquidity": 7600000,
+        "volume24h": 12100000,
+        "holders": 38800,
+        "change24h": 6.7
+      },
+      "risk": {
+        "riskLevel": "LOW",
+        "action": "allow",
+        "scanState": "completed",
+        "message": "No blocking risk detected; protected trade preview is available.",
+        "labels": ["deep liquidity", "recognized market", "low concentration"]
+      },
+      "holders": [
+        { "label": "Top 10", "value": 14.9 },
+        { "label": "Smart Money", "value": 12.2 },
+        { "label": "Fresh Wallets", "value": 4.8 }
+      ],
+      "traders": [
+        { "wallet": "0xa4...9911", "pnl": 221000, "winRate": 76, "volume": 1400000 },
+        { "wallet": "0x18...a9f0", "pnl": 109000, "winRate": 67, "volume": 930000 }
+      ],
+      "trades": [
+        { "side": "Buy", "wallet": "0xa4...9911", "amount": 81000, "time": "18m ago" },
+        { "side": "Sell", "wallet": "0x18...a9f0", "amount": 26000, "time": "32m ago" }
+      ],
+      "ai": [
+        "Higher liquidity lowers execution risk, but upside may be slower than early-stage signals.",
+        "Good candidate for a conservative quote-size preset."
+      ],
+      "audit": [
+        "OKX signal intelligence loaded",
+        "Token dossier generated",
+        "Risk Gate returned LOW",
+        "Protected preview flow enabled"
+      ]
+    }
+  },
+  "quotes": {
+    "nova": {
+      "source": "signal-cache",
+      "inputSymbol": "USDC",
+      "outputSymbol": "NOVA",
+      "inputAmount": 100,
+      "estimatedOutput": 1181.42,
+      "minOutput": 1169.1,
+      "priceImpact": 0.42,
+      "gasUsd": 0.04,
+      "route": ["OKX DEX Aggregator", "Raydium", "NOVA/USDC"],
+      "expiresInSec": 28,
+      "mode": "protected-preview",
+      "message": "Unsigned quote prepared. Execution requires a separate user-confirmed wallet action."
+    },
+    "mesh": {
+      "source": "signal-cache",
+      "inputSymbol": "USDC",
+      "outputSymbol": "MESH",
+      "inputAmount": 100,
+      "estimatedOutput": 3182.22,
+      "minOutput": 3112.12,
+      "priceImpact": 1.8,
+      "gasUsd": 0.12,
+      "route": ["OKX DEX Aggregator", "Base route", "MESH/USDC"],
+      "expiresInSec": 25,
+      "mode": "protected-preview",
+      "message": "Warning quote prepared. Review Risk Gate before any wallet action."
+    },
+    "glitch": {
+      "source": "signal-cache",
+      "inputSymbol": "USDC",
+      "outputSymbol": "GLITCH",
+      "inputAmount": 100,
+      "estimatedOutput": 0,
+      "minOutput": 0,
+      "priceImpact": 0,
+      "gasUsd": 0,
+      "route": [],
+      "expiresInSec": 0,
+      "mode": "blocked",
+      "message": "Risk Gate blocked buy-side preview creation for this token."
+    },
+    "atlas": {
+      "source": "signal-cache",
+      "inputSymbol": "USDC",
+      "outputSymbol": "ATLAS",
+      "inputAmount": 100,
+      "estimatedOutput": 77.8,
+      "minOutput": 77.1,
+      "priceImpact": 0.18,
+      "gasUsd": 7.4,
+      "route": ["OKX DEX Aggregator", "Uniswap-compatible route", "ATLAS/USDC"],
+      "expiresInSec": 30,
+      "mode": "protected-preview",
+      "message": "Unsigned quote prepared. Ethereum gas is the main execution cost."
+    }
+  }
+}
