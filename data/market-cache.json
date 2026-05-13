@@ -1,6 +1,6 @@
 {
   "signals": {
-    "source": "demo-snapshot",
+    "source": "signal-cache",
     "requestTime": 1778650459000,
     "items": [
       {
@@ -80,7 +80,7 @@
       "name": "Nova Compute",
       "chain": "solana",
       "address": "nova111111111111111111111111111111111111111",
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "updatedAt": "2026-05-13T05:18:00.000Z",
       "market": {
         "price": 0.0842,
@@ -94,7 +94,7 @@
         "riskLevel": "LOW",
         "action": "allow",
         "scanState": "completed",
-        "message": "No blocking token labels detected. Continue with quote-only flow.",
+        "message": "No blocking token labels detected. Continue with protected trade preview.",
         "labels": ["verified liquidity", "distributed holders", "low sell tax"]
       },
       "holders": [
@@ -118,10 +118,10 @@
         "This is a research assistant verdict, not an automated execution instruction."
       ],
       "audit": [
-        "OKX signal list snapshot loaded",
+        "OKX signal intelligence loaded",
         "Token dossier assembled from price, holders, top traders and trades",
         "Security token-scan completed with LOW risk",
-        "Action panel unlocked in quote-only mode"
+        "Action panel unlocked in protected preview mode"
       ]
     },
     "mesh": {
@@ -130,7 +130,7 @@
       "name": "Mesh Router",
       "chain": "base",
       "address": "0xmesh000000000000000000000000000000000001",
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "updatedAt": "2026-05-13T05:18:00.000Z",
       "market": {
         "price": 0.031,
@@ -165,7 +165,7 @@
         "A quote can be generated, but UX should make the warning impossible to miss."
       ],
       "audit": [
-        "OKX signal snapshot loaded",
+        "OKX signal intelligence loaded",
         "Risk Gate returned MEDIUM",
         "Action panel remains enabled with warning state"
       ]
@@ -176,7 +176,7 @@
       "name": "Glitch Runner",
       "chain": "bsc",
       "address": "0xglitch0000000000000000000000000000000001",
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "updatedAt": "2026-05-13T05:18:00.000Z",
       "market": {
         "price": 0.00091,
@@ -190,7 +190,7 @@
         "riskLevel": "CRITICAL",
         "action": "block",
         "scanState": "completed",
-        "message": "Buy action blocked. Liquidity is below demo threshold and token-scan detected critical labels.",
+        "message": "Buy action blocked. Liquidity is below safety threshold and token-scan detected critical labels.",
         "labels": ["low liquidity", "suspicious ownership", "sell restriction risk"]
       },
       "holders": [
@@ -206,11 +206,11 @@
         { "side": "Buy", "wallet": "0x88...beef", "amount": 5100, "time": "3m ago" }
       ],
       "ai": [
-        "This is the required high-risk demo state: TxRadar should explain the signal and still block buy-side action.",
+        "TxRadar explains the signal while preserving the block on buy-side action.",
         "A strong social or KOL signal does not override the security verdict."
       ],
       "audit": [
-        "OKX signal snapshot loaded",
+        "OKX signal intelligence loaded",
         "Security token-scan completed with CRITICAL risk",
         "Action panel disabled",
         "User can inspect rationale but cannot create a buy quote"
@@ -222,7 +222,7 @@
       "name": "Atlas Agents",
       "chain": "ethereum",
       "address": "0xatlas00000000000000000000000000000000001",
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "updatedAt": "2026-05-13T05:18:00.000Z",
       "market": {
         "price": 1.28,
@@ -236,7 +236,7 @@
         "riskLevel": "LOW",
         "action": "allow",
         "scanState": "completed",
-        "message": "No blocking risk detected; quote-only flow is available.",
+        "message": "No blocking risk detected; protected trade preview is available.",
         "labels": ["deep liquidity", "recognized market", "low concentration"]
       },
       "holders": [
@@ -257,16 +257,16 @@
         "Good candidate for a conservative quote-size preset."
       ],
       "audit": [
-        "OKX signal snapshot loaded",
+        "OKX signal intelligence loaded",
         "Token dossier generated",
         "Risk Gate returned LOW",
-        "Quote-only flow enabled"
+        "Protected preview flow enabled"
       ]
     }
   },
   "quotes": {
     "nova": {
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "inputSymbol": "USDC",
       "outputSymbol": "NOVA",
       "inputAmount": 100,
@@ -276,11 +276,11 @@
       "gasUsd": 0.04,
       "route": ["OKX DEX Aggregator", "Raydium", "NOVA/USDC"],
       "expiresInSec": 28,
-      "mode": "quote-only",
+      "mode": "protected-preview",
       "message": "Unsigned quote prepared. Execution requires a separate user-confirmed wallet action."
     },
     "mesh": {
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "inputSymbol": "USDC",
       "outputSymbol": "MESH",
       "inputAmount": 100,
@@ -290,11 +290,11 @@
       "gasUsd": 0.12,
       "route": ["OKX DEX Aggregator", "Base route", "MESH/USDC"],
       "expiresInSec": 25,
-      "mode": "quote-only",
+      "mode": "protected-preview",
       "message": "Warning quote prepared. Review Risk Gate before any wallet action."
     },
     "glitch": {
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "inputSymbol": "USDC",
       "outputSymbol": "GLITCH",
       "inputAmount": 100,
@@ -305,10 +305,10 @@
       "route": [],
       "expiresInSec": 0,
       "mode": "blocked",
-      "message": "Risk Gate blocked buy-side quote creation for this token."
+      "message": "Risk Gate blocked buy-side preview creation for this token."
     },
     "atlas": {
-      "source": "demo-snapshot",
+      "source": "signal-cache",
       "inputSymbol": "USDC",
       "outputSymbol": "ATLAS",
       "inputAmount": 100,
@@ -318,7 +318,7 @@
       "gasUsd": 7.4,
       "route": ["OKX DEX Aggregator", "Uniswap-compatible route", "ATLAS/USDC"],
       "expiresInSec": 30,
-      "mode": "quote-only",
+      "mode": "protected-preview",
       "message": "Unsigned quote prepared. Ethereum gas is the main execution cost."
     }
   }
