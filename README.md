@@ -51,6 +51,16 @@ npm run dev
 npm run check
 ```
 
+## Review Flow
+
+For a quick MVP review, start in demo mode and click through one token from each
+risk tier. The intended read is:
+
+1. scan signal quality in the left feed;
+2. open the dossier for market, holder, and trader context;
+3. check the Risk Gate verdict before quoting;
+4. request a quote only when the verdict allows review or action.
+
 ## Live OKX Mode
 
 Demo mode works out of the box. To try live OKX CLI calls, apply for credentials:
