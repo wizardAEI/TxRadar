@@ -1,36 +1,35 @@
-# TxRadar MVP
+# TxRadar
 
-TxRadar is a local OKX OnchainOS MVP for watching high-signal token activity and
-turning it into a quote-only decision workflow.
+TxRadar is an OKX OnchainOS intelligence console for detecting high-signal token
+activity, evaluating token risk, and preparing protected trade previews.
 
-It was shaped from the InfiniMind project `TxRadar Feature MVP` and keeps the
-first product loop intentionally small:
+The product flow is intentionally direct:
 
 ```text
-Signal Feed -> Token Dossier -> Risk Gate -> Action Quote
+Signal Radar -> Token Dossier -> Risk Gate -> Protected Preview
 ```
 
-The app runs as a dependency-free Node static server, ships with demo data, and
-can optionally call a local `onchainos` CLI when OKX credentials are configured.
+TxRadar combines smart-money, whale, and KOL activity with token market context,
+holder concentration checks, top-trader signals, and a risk gate before any
+trade preview is surfaced.
 
-## What It Does
+## Product Surfaces
 
 | Surface | Purpose |
 | --- | --- |
+| Signal Radar | Maps high-signal wallet activity into an interactive radar view. |
 | Signal Feed | Tracks smart-money, whale, and KOL buy signals across supported chains. |
 | Token Dossier | Summarizes price, liquidity, holders, top traders, trades, and research notes. |
-| Risk Gate | Applies a token-scan verdict before any quote is shown. |
-| Action Quote | Produces unsigned swap previews only. No execution path is included. |
+| Risk Gate | Applies token-scan verdicts before a preview is shown. |
+| Protected Preview | Produces unsigned swap previews for user-confirmed execution flows. |
 
-## MVP Principles
+## Screenshots
 
-- **Fast to inspect:** open the app locally and review a complete demo snapshot.
-- **Live when possible:** switch to OKX CLI mode when credentials and region
-  access are available.
-- **Safe by default:** risk checks sit before quote creation, and the MVP never
-  signs, approves, broadcasts, or executes transactions.
-- **Small enough to replace:** the demo data, CLI adapters, and UI surfaces are
-  deliberately easy to swap as the product direction sharpens.
+![TxRadar overview radar](docs/screenshots/overview.png)
+
+![TxRadar signal feed](docs/screenshots/signal-feed.png)
+
+![TxRadar protected preview](docs/screenshots/protected-preview.png)
 
 ## Quick Start
 
@@ -51,9 +50,21 @@ npm run dev
 npm run check
 ```
 
+## Review Flow
+
+Start in Signal Radar, pick a target, and follow the decision path:
+
+1. inspect signal quality and wallet class;
+2. open the token dossier for market, holder, and trader context;
+3. review the Risk Gate verdict;
+4. prepare a protected preview only when the risk state allows it.
+
 ## Live OKX Mode
 
-Demo mode works out of the box. To try live OKX CLI calls, apply for credentials:
+TxRadar runs locally with a curated market cache and can switch to OKX live data
+when credentials and regional access are available.
+
+Apply for credentials:
 
 ```text
 https://web3.okx.com/onchain-os/dev-portal
@@ -73,10 +84,11 @@ OKX_SECRET_KEY="your-secret-key"
 OKX_PASSPHRASE="your-passphrase"
 ```
 
-Restart the server after editing `.env`, then toggle **Live OKX CLI** in the UI.
+Restart the server after editing `.env`, then toggle **Live Market Data** in the
+UI.
 
 If the CLI is missing, rate-limited, region-blocked, or returns no usable data,
-TxRadar keeps the MVP reviewable by falling back to `data/demo-data.json`.
+TxRadar keeps the console reviewable by falling back to `data/market-cache.json`.
 
 ## OKX Skill Mapping
 
@@ -85,24 +97,23 @@ TxRadar keeps the MVP reviewable by falling back to `data/demo-data.json`.
 | Signal Feed | `okx-dex-signal` via `signal list` |
 | Token Dossier | `okx-dex-token` via `price-info`, `liquidity`, `top-trader`, and `trades` |
 | Risk Gate | `okx-security` via `security token-scan` |
-| Action Quote | `okx-dex-swap` via `swap quote` |
+| Protected Preview | `okx-dex-swap` via `swap quote` |
 
 ## Project Layout
 
 ```text
 .
-├── data/demo-data.json      # bundled demo snapshot
+├── data/market-cache.json   # curated market cache
 ├── public/index.html        # app shell
 ├── public/app.js            # client-side state and rendering
-├── public/styles.css        # dark terminal-style UI
+├── public/styles.css        # product UI and radar animation
 ├── server.js                # static server and OKX CLI adapter
 └── package.json
 ```
 
 ## Safety Boundary
 
-TxRadar is quote-only. It does not sign, broadcast, force, approve, or execute
-transactions.
+TxRadar does not sign, broadcast, force, approve, or execute transactions.
 
 Any future execution path must preserve the OKX confirmation rules:
 

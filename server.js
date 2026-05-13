@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 const root = process.cwd();
 const publicDir = join(root, "public");
-const dataPath = join(root, "data", "demo-data.json");
+const dataPath = join(root, "data", "market-cache.json");
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || "127.0.0.1";
 const cliTimeout = Number(process.env.OKX_TIMEOUT_MS || 9000);
@@ -22,7 +22,9 @@ const mimeTypes = {
   ".svg": "image/svg+xml"
 };
 
-let demoCache;
+let marketCache;
+const liveSignalCache = new Map();
+const liveRiskCache = new Map();
 
 async function loadDotEnv() {
   const envPath = join(root, ".env");
@@ -39,11 +41,11 @@ async function loadDotEnv() {
   }
 }
 
-async function getDemoData() {
-  if (!demoCache) {
-    demoCache = JSON.parse(await readFile(dataPath, "utf8"));
+async function getMarketCache() {
+  if (!marketCache) {
+    marketCache = JSON.parse(await readFile(dataPath, "utf8"));
   }
-  return demoCache;
+  return marketCache;
 }
 
 function sendJson(response, status, payload) {
@@ -97,6 +99,64 @@ function extractItems(payload) {
   return [];
 }
 
+function unwrapPayload(payload) {
+  if (!payload || typeof payload !== "object") return {};
+  if (payload.data && !Array.isArray(payload.data) && typeof payload.data === "object") return payload.data;
+  if (payload.result && !Array.isArray(payload.result) && typeof payload.result === "object") return payload.result;
+  return payload;
+}
+
+function firstNumber(...values) {
+  for (const value of values) {
+    const number = Number(value);
+    if (Number.isFinite(number)) return number;
+  }
+  return 0;
+}
+
+function firstString(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  return "";
+}
+
+function cacheLiveSignal(signal) {
+  if (!signal?.id) return;
+  liveSignalCache.set(signal.id, signal);
+  if (signal.address) liveSignalCache.set(signal.address.toLowerCase(), signal);
+}
+
+function riskActionForLevel(riskLevel, fallback = "review") {
+  const level = String(riskLevel || "UNKNOWN").toUpperCase();
+  if (level === "CRITICAL") return "block";
+  if (level === "HIGH" || level === "MEDIUM") return "warn";
+  if (level === "LOW") return "allow";
+  return fallback || "review";
+}
+
+function isRiskBlocked(risk) {
+  return risk?.action === "block" || String(risk?.riskLevel || "").toUpperCase() === "CRITICAL";
+}
+
+function blockedQuote(token, amount, message = "Risk Gate blocked buy-side preview creation for this token.") {
+  return {
+    source: token.source === "okx-live" ? "okx-live" : "signal-cache",
+    inputSymbol: "USDC",
+    outputSymbol: token.symbol || "TOKEN",
+    inputAmount: amount,
+    estimatedOutput: 0,
+    minOutput: 0,
+    priceImpact: 0,
+    gasUsd: 0,
+    route: [],
+    expiresInSec: 0,
+    mode: "blocked",
+    message,
+    updatedAt: new Date().toISOString()
+  };
+}
+
 function mapSignal(item, index) {
   const token = item.token || item.baseToken || item.tokenInfo || {};
   const symbol = item.symbol || token.symbol || item.tokenSymbol || `TOKEN-${index + 1}`;
@@ -125,6 +185,7 @@ function mapSignal(item, index) {
 async function getLiveSignals(chain) {
   const payload = await runOkx(["signal", "list", "--chain", chain, "--limit", "20"]);
   const items = extractItems(payload).map(mapSignal);
+  items.forEach(cacheLiveSignal);
   return {
     source: "okx-live",
     requestTime: payload?.requestTime || Date.now(),
@@ -134,12 +195,19 @@ async function getLiveSignals(chain) {
 
 async function getLiveTokenDossier(token) {
   const address = token.address || token.id;
-  const [priceInfo, liquidity, topTrader, trades] = await Promise.allSettled([
+  const [priceInfo, liquidity, holders, topTrader, trades] = await Promise.allSettled([
     runOkx(["token", "price-info", "--address", address]),
     runOkx(["token", "liquidity", "--address", address]),
+    runOkx(["token", "holders", "--address", address, "--limit", "5"]),
     runOkx(["token", "top-trader", "--address", address, "--limit", "5"]),
     runOkx(["token", "trades", "--address", address, "--limit", "8"])
   ]);
+  const price = priceInfo.status === "fulfilled" ? unwrapPayload(priceInfo.value) : {};
+  const liquidityInfo = liquidity.status === "fulfilled" ? unwrapPayload(liquidity.value) : {};
+  const holderItems = holders.status === "fulfilled" ? extractItems(holders.value) : [];
+  const traderItems = topTrader.status === "fulfilled" ? extractItems(topTrader.value) : [];
+  const tradeItems = trades.status === "fulfilled" ? extractItems(trades.value) : [];
+  const liquidityItems = extractItems(liquidity.value);
 
   return {
     id: token.id,
@@ -148,10 +216,33 @@ async function getLiveTokenDossier(token) {
     chain: token.chain,
     address: token.address,
     signal: token,
-    price: priceInfo.status === "fulfilled" ? priceInfo.value : null,
-    liquidity: liquidity.status === "fulfilled" ? liquidity.value : null,
-    topTraders: topTrader.status === "fulfilled" ? extractItems(topTrader.value) : [],
-    trades: trades.status === "fulfilled" ? extractItems(trades.value) : [],
+    market: {
+      price: firstNumber(price.price, price.tokenPrice, price.usdPrice, token.price),
+      marketCap: firstNumber(price.marketCap, price.marketCapUsd, token.marketCap),
+      liquidity: firstNumber(price.liquidity, price.liquidityUsd, liquidityInfo.liquidity, liquidityInfo.liquidityUsd, liquidityItems[0]?.liquidity, token.liquidity),
+      volume24h: firstNumber(price.volume24h, price.volume24hUsd, price.vol24h, price.volumeUsd24h),
+      holders: firstNumber(price.holders, price.holderCount, price.holderCnt),
+      change24h: firstNumber(price.change24h, price.priceChange24h, price.change24hPercent, token.change24h)
+    },
+    holders: holderItems.slice(0, 5).map((item, index) => ({
+      label: firstString(item.label, item.tag, item.walletType, item.address, item.walletAddress, `Holder ${index + 1}`),
+      value: firstNumber(item.percent, item.percentage, item.holdingPercent, item.ratio, item.amountPercent)
+    })),
+    traders: traderItems.slice(0, 5).map((item) => ({
+      wallet: firstString(item.wallet, item.walletAddress, item.address, item.ownerAddress, "--"),
+      pnl: firstNumber(item.pnl, item.profit, item.realizedPnl, item.totalProfitUsd),
+      winRate: firstNumber(item.winRate, item.winRatio, item.winRatePercent),
+      volume: firstNumber(item.volume, item.volumeUsd, item.totalVolumeUsd)
+    })),
+    trades: tradeItems,
+    ai: [
+      "Live OKX signal loaded. Open dossier for structured research.",
+      "This is a research assistant verdict, not an automated execution instruction."
+    ],
+    audit: [
+      "OKX signal intelligence loaded",
+      "Token dossier assembled from price, holders, top traders and trades"
+    ],
     source: "okx-live",
     updatedAt: new Date().toISOString()
   };
@@ -160,36 +251,134 @@ async function getLiveTokenDossier(token) {
 async function getLiveRisk(token) {
   const address = token.address || token.id;
   const payload = await runOkx(["security", "token-scan", "--chain", token.chain, "--address", address]);
-  return {
-    riskLevel: payload?.riskLevel || payload?.data?.riskLevel || "UNKNOWN",
-    action: payload?.action || payload?.data?.action || "review",
-    labels: payload?.labels || payload?.data?.labels || payload?.riskItems || [],
+  const data = unwrapPayload(payload);
+  const riskLevel = String(data.riskLevel || data.level || data.riskControlLevel || "UNKNOWN").toUpperCase();
+  const action = data.action || riskActionForLevel(riskLevel);
+  const labels = data.labels || data.riskLabels || data.riskItems || data.riskItemDetail || [];
+  const risk = {
+    riskLevel,
+    action,
+    scanState: "completed",
+    message: data.message || (isRiskBlocked({ riskLevel, action }) ? "Risk Gate blocked buy-side quote creation for this token." : "Security token-scan completed."),
+    labels,
     source: "okx-live",
+    updatedAt: new Date().toISOString()
+  };
+  if (token.id) liveRiskCache.set(token.id, risk);
+  if (address) liveRiskCache.set(address.toLowerCase(), risk);
+  return risk;
+}
+
+async function findToken(id, mode, marketCache) {
+  const requestedId = String(id || "");
+  const cachedToken = marketCache.signals.items.find((item) => item.id === requestedId || item.address?.toLowerCase() === requestedId.toLowerCase());
+  if (mode === "live") {
+    const liveToken = liveSignalCache.get(requestedId) || liveSignalCache.get(requestedId.toLowerCase());
+    if (liveToken) return liveToken;
+  }
+  return cachedToken || marketCache.signals.items[0];
+}
+
+function buildCachedQuote(marketCache, token, amount) {
+  const quoteTemplate = marketCache.quotes[token.id];
+  if (!quoteTemplate) {
+    return {
+      source: token.source === "okx-live" ? "okx-live" : "signal-cache",
+      inputSymbol: "USDC",
+      outputSymbol: token.symbol || "TOKEN",
+      inputAmount: amount,
+      estimatedOutput: 0,
+      minOutput: 0,
+      priceImpact: 0,
+      gasUsd: 0,
+      route: ["OKX DEX Aggregator"],
+      expiresInSec: 30,
+      mode: "protected-preview",
+      message: "Unsigned quote prepared. Execution requires a separate user-confirmed wallet action.",
+      updatedAt: new Date().toISOString()
+    };
+  }
+  const quoteScale = quoteTemplate?.inputAmount ? amount / quoteTemplate.inputAmount : 1;
+  return {
+    ...quoteTemplate,
+    inputAmount: amount,
+    estimatedOutput: Number(((quoteTemplate?.estimatedOutput || 0) * quoteScale).toFixed(6)),
+    minOutput: Number(((quoteTemplate?.minOutput || 0) * quoteScale).toFixed(6)),
+    priceImpact: Number(((quoteTemplate?.priceImpact || 0) * Math.max(1, Math.sqrt(quoteScale))).toFixed(3)),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function buildLiveQuote(payload, token, amount, fallback) {
+  const data = unwrapPayload(payload);
+  const router = data.routerResult || data.route || data.dexRouterList || data.routes || data.path;
+  const route = Array.isArray(router)
+    ? router.map((step) => typeof step === "string" ? step : firstString(step.dexName, step.name, step.poolName, step.symbol, step.protocol))
+    : fallback.route;
+  return {
+    ...fallback,
+    source: "okx-live",
+    inputAmount: amount,
+    inputSymbol: firstString(data.fromTokenSymbol, data.fromSymbol, data.inputSymbol, fallback.inputSymbol, "USDC"),
+    outputSymbol: firstString(data.toTokenSymbol, data.toSymbol, data.outputSymbol, token.symbol, fallback.outputSymbol),
+    estimatedOutput: firstNumber(data.toTokenAmount, data.toAmount, data.outputAmount, data.estimatedOutput, data.amountOut, fallback.estimatedOutput),
+    minOutput: firstNumber(data.minReceiveAmount, data.minOutput, data.minimumReceived, data.minAmountOut, fallback.minOutput),
+    priceImpact: firstNumber(data.priceImpactPercentage, data.priceImpact, data.impact, fallback.priceImpact),
+    gasUsd: firstNumber(data.estimateGasFeeUsd, data.gasUsd, data.gasFeeUsd, data.gasCostUsd, fallback.gasUsd),
+    route: route.filter(Boolean).length ? route.filter(Boolean) : fallback.route,
+    expiresInSec: firstNumber(data.expiresInSec, data.expireSec, fallback.expiresInSec) || 30,
+    raw: payload,
     updatedAt: new Date().toISOString()
   };
 }
 
 async function getSignals(url) {
-  const demo = await getDemoData();
-  const mode = url.searchParams.get("mode") || "demo";
+  const marketCache = await getMarketCache();
+  const mode = url.searchParams.get("mode") || "cache";
   const chain = url.searchParams.get("chain") || "solana";
   if (mode === "live") {
     try {
       const live = await getLiveSignals(chain);
       if (live.items.length) return live;
-      return { ...demo.signals, notice: "OKX returned no live signals; showing demo snapshot." };
+      return { ...marketCache.signals, notice: "OKX returned no live signals; showing curated signal cache." };
     } catch (error) {
-      return { ...demo.signals, notice: normalizeError(error) };
+      return { ...marketCache.signals, notice: normalizeError(error) };
     }
   }
-  return demo.signals;
+  return marketCache.signals;
 }
 
 async function getDossier(url, id) {
-  const demo = await getDemoData();
-  const token = demo.signals.items.find((item) => item.id === id) || demo.signals.items[0];
-  const mode = url.searchParams.get("mode") || "demo";
-  const dossier = demo.dossiers[token.id] || demo.dossiers[demo.signals.items[0].id];
+  const marketCache = await getMarketCache();
+  const mode = url.searchParams.get("mode") || "cache";
+  const token = await findToken(id, mode, marketCache);
+  const dossier = marketCache.dossiers[token.id] || {
+    id: token.id,
+    symbol: token.symbol,
+    name: token.name,
+    chain: token.chain,
+    address: token.address,
+    source: token.source || "signal-cache",
+    market: {
+      price: 0,
+      marketCap: token.marketCap || 0,
+      liquidity: token.liquidity || 0,
+      volume24h: 0,
+      holders: 0,
+      change24h: token.change24h || 0
+    },
+    risk: {
+      riskLevel: token.riskLevel || "UNKNOWN",
+      action: riskActionForLevel(token.riskLevel),
+      scanState: "not-run",
+      message: "Risk scan is not available yet.",
+      labels: []
+    },
+    holders: [],
+    traders: [],
+    ai: [],
+    audit: []
+  };
 
   if (mode === "live") {
     try {
@@ -210,22 +399,33 @@ async function getDossier(url, id) {
 
 async function getQuote(request, response) {
   const body = await readRequestBody(request);
-  const demo = await getDemoData();
-  const token = demo.signals.items.find((item) => item.id === body.tokenId) || demo.signals.items[0];
+  const marketCache = await getMarketCache();
+  const token = await findToken(body.tokenId, body.mode, marketCache);
   const amount = Number(body.amount || 100);
-  const quoteTemplate = demo.quotes[token.id];
-  const quoteScale = quoteTemplate?.inputAmount ? amount / quoteTemplate.inputAmount : 1;
-  const demoQuote = {
-    ...quoteTemplate,
-    inputAmount: amount,
-    estimatedOutput: Number(((quoteTemplate?.estimatedOutput || 0) * quoteScale).toFixed(6)),
-    minOutput: Number(((quoteTemplate?.minOutput || 0) * quoteScale).toFixed(6)),
-    priceImpact: Number(((quoteTemplate?.priceImpact || 0) * Math.max(1, Math.sqrt(quoteScale))).toFixed(3)),
-    updatedAt: new Date().toISOString()
-  };
+  const cachedQuote = buildCachedQuote(marketCache, token, amount);
+
+  if (cachedQuote.mode === "blocked") {
+    sendJson(response, 200, cachedQuote);
+    return;
+  }
 
   if (body.mode === "live") {
     try {
+      const cachedRisk = liveRiskCache.get(token.id) || liveRiskCache.get(String(token.address || "").toLowerCase());
+      let risk = cachedRisk;
+      let riskNotice = "";
+      if (!risk) {
+        try {
+          risk = await getLiveRisk(token);
+        } catch (error) {
+          riskNotice = `Security scan could not be completed: ${normalizeError(error)}`;
+        }
+      }
+      if (isRiskBlocked(risk)) {
+        sendJson(response, 200, blockedQuote(token, amount, risk.message));
+        return;
+      }
+
       const payload = await runOkx([
         "swap",
         "quote",
@@ -238,15 +438,19 @@ async function getQuote(request, response) {
         "--chain",
         token.chain
       ]);
-      sendJson(response, 200, { ...demoQuote, raw: payload, source: "okx-live" });
+      sendJson(response, 200, {
+        ...buildLiveQuote(payload, token, amount, cachedQuote),
+        risk,
+        notice: riskNotice || undefined
+      });
       return;
     } catch (error) {
-      sendJson(response, 200, { ...demoQuote, source: "demo-fallback", notice: normalizeError(error) });
+      sendJson(response, 200, { ...cachedQuote, source: "market-cache", notice: normalizeError(error) });
       return;
     }
   }
 
-  sendJson(response, 200, demoQuote);
+  sendJson(response, 200, cachedQuote);
 }
 
 async function readRequestBody(request) {
@@ -324,5 +528,5 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`TxRadar MVP running at http://${host}:${port}`);
+  console.log(`TxRadar running at http://${host}:${port}`);
 });
