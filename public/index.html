@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TxRadar MVP</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="side-rail" aria-label="TxRadar system status">
+        <div class="brand-mark">TX</div>
+        <button class="icon-button active" title="Signal Feed" aria-label="Signal Feed">⌁</button>
+        <button class="icon-button" title="Token Dossier" aria-label="Token Dossier">◈</button>
+        <button class="icon-button" title="Risk Gate" aria-label="Risk Gate">!</button>
+        <button class="icon-button" title="Action Quote" aria-label="Action Quote">↯</button>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">OKX OnchainOS / Feature MVP</p>
+            <h1>TxRadar</h1>
+          </div>
+          <div class="topbar-actions">
+            <label class="switch">
+              <input id="live-mode" type="checkbox" />
+              <span>Live OKX CLI</span>
+            </label>
+            <button id="refresh" class="command-button">Refresh</button>
+          </div>
+        </header>
+
+        <section class="radar-grid">
+          <div class="panel signal-panel">
+            <div class="panel-header">
+              <div>
+                <span class="panel-kicker">01</span>
+                <h2>Signal Feed</h2>
+              </div>
+              <div id="feed-source" class="source-pill">loading</div>
+            </div>
+            <div class="filter-strip">
+              <button class="filter active" data-chain="solana">Solana</button>
+              <button class="filter" data-chain="base">Base</button>
+              <button class="filter" data-chain="ethereum">Ethereum</button>
+              <button class="filter" data-chain="bsc">BSC</button>
+            </div>
+            <div id="notice" class="notice hidden"></div>
+            <div id="signals" class="signal-list" aria-live="polite"></div>
+          </div>
+
+          <div class="panel dossier-panel">
+            <div class="panel-header">
+              <div>
+                <span class="panel-kicker">02</span>
+                <h2>Token Dossier</h2>
+              </div>
+              <div id="selected-token" class="token-chip">--</div>
+            </div>
+            <div class="metric-grid" id="metrics"></div>
+            <div class="split-block">
+              <div>
+                <h3>Holder Cluster</h3>
+                <div id="holders" class="bar-list"></div>
+              </div>
+              <div>
+                <h3>Top Traders</h3>
+                <div id="traders" class="compact-list"></div>
+              </div>
+            </div>
+            <div>
+              <h3>AI Research Notes</h3>
+              <div id="ai-notes" class="note-stack"></div>
+            </div>
+          </div>
+
+          <div class="panel risk-panel" id="risk-panel">
+            <div class="panel-header">
+              <div>
+                <span class="panel-kicker">03</span>
+                <h2>Risk Gate</h2>
+              </div>
+              <div id="risk-badge" class="risk-badge">UNKNOWN</div>
+            </div>
+            <p id="risk-message" class="risk-message"></p>
+            <div id="risk-labels" class="tag-row"></div>
+            <div class="audit-block">
+              <h3>Audit Trail</h3>
+              <ol id="audit"></ol>
+            </div>
+          </div>
+
+          <div class="panel action-panel">
+            <div class="panel-header">
+              <div>
+                <span class="panel-kicker">04</span>
+                <h2>Action Quote</h2>
+              </div>
+              <div id="quote-mode" class="source-pill">quote-only</div>
+            </div>
+            <div class="amount-row">
+              <label for="amount">USDC Size</label>
+              <input id="amount" type="number" value="100" min="1" step="1" />
+              <button id="quote" class="command-button">Quote</button>
+            </div>
+            <div id="quote-card" class="quote-card"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
